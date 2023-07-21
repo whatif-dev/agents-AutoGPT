@@ -79,7 +79,7 @@ def create_text_completion(
         temperature = config.temperature
 
     kwargs = {"model": model}
-    kwargs.update(config.get_openai_credentials(model))
+    kwargs |= config.get_openai_credentials(model)
 
     response = iopenai.create_text_completion(
         prompt=prompt,
@@ -147,7 +147,7 @@ def create_chat_completion(
             if message is not None:
                 return message
 
-    chat_completion_kwargs.update(config.get_openai_credentials(model))
+    chat_completion_kwargs |= config.get_openai_credentials(model)
 
     if functions:
         chat_completion_kwargs["functions"] = [

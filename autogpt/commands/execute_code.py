@@ -50,7 +50,7 @@ def execute_python_code(code: str, name: str, agent: Agent) -> str:
     os.makedirs(code_dir, exist_ok=True)
 
     if not name.endswith(".py"):
-        name = name + ".py"
+        name += ".py"
 
     # The `name` arg is not covered by @sanitize_path_arg,
     # so sanitization must be done here to prevent path traversal.
@@ -112,11 +112,7 @@ def execute_python_file(filename: str, agent: Agent) -> str:
             encoding="utf8",
             cwd=agent.config.workspace_path,
         )
-        if result.returncode == 0:
-            return result.stdout
-        else:
-            return f"Error: {result.stderr}"
-
+        return result.stdout if result.returncode == 0 else f"Error: {result.stderr}"
     logger.debug("Auto-GPT is not running in a Docker container")
     try:
         client = docker.from_env()

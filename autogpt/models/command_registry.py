@@ -47,12 +47,11 @@ class CommandRegistry:
             self.commands_aliases[alias] = cmd
 
     def unregister(self, command: Command) -> None:
-        if command.name in self.commands:
-            del self.commands[command.name]
-            for alias in command.aliases:
-                del self.commands_aliases[alias]
-        else:
+        if command.name not in self.commands:
             raise KeyError(f"Command '{command.name}' not found in registry.")
+        del self.commands[command.name]
+        for alias in command.aliases:
+            del self.commands_aliases[alias]
 
     def reload_commands(self) -> None:
         """Reloads all loaded command plugins."""

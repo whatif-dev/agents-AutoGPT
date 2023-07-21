@@ -49,10 +49,10 @@ def create_config(
         allow_downloads (bool): Whether to allow Auto-GPT to download files natively
         skips_news (bool): Whether to suppress the output of latest news on startup
     """
-    config.debug_mode = False
     config.continuous_mode = False
     config.speak_mode = False
 
+    config.debug_mode = False
     if debug:
         logger.typewriter_log("Debug Mode: ", Fore.GREEN, "ENABLED")
         config.debug_mode = True
@@ -153,8 +153,7 @@ def create_config(
         logger.typewriter_log(
             "WARNING: ",
             Fore.YELLOW,
-            f"{Back.LIGHTYELLOW_EX}Auto-GPT will now be able to download and save files to your machine.{Back.RESET} "
-            + "It is recommended that you monitor any files it downloads carefully.",
+            f"{Back.LIGHTYELLOW_EX}Auto-GPT will now be able to download and save files to your machine.{Back.RESET} It is recommended that you monitor any files it downloads carefully.",
         )
         logger.typewriter_log(
             "WARNING: ",

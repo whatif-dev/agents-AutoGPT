@@ -32,7 +32,7 @@ def dummy_agent(config: Config, memory_json_file, workspace: Workspace):
     )
     ai_config.command_registry = command_registry
 
-    agent = Agent(
+    return Agent(
         memory=memory_json_file,
         command_registry=command_registry,
         ai_config=ai_config,
@@ -40,5 +40,3 @@ def dummy_agent(config: Config, memory_json_file, workspace: Workspace):
         triggering_prompt="dummy triggering prompt",
         workspace_directory=workspace.root,
     )
-
-    return agent

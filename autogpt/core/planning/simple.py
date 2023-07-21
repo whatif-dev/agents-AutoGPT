@@ -164,19 +164,17 @@ class SimplePlanner(Configurable):
 
     def _make_template_kwargs_for_strategy(self, strategy: PromptStrategy):
         provider = self._providers[strategy.model_classification]
-        template_kwargs = {
+        return {
             "os_info": get_os_info(),
             "api_budget": provider.get_remaining_budget(),
             "current_time": time.strftime("%c"),
         }
-        return template_kwargs
 
 
 def get_os_info() -> str:
     os_name = platform.system()
-    os_info = (
+    return (
         platform.platform(terse=True)
         if os_name != "Linux"
         else distro.name(pretty=True)
     )
-    return os_info

@@ -45,7 +45,7 @@ def inspect_zip_for_modules(zip_path: str, debug: bool = False) -> list[str]:
             if name.endswith("__init__.py") and not name.startswith("__MACOSX"):
                 logger.debug(f"Found module '{name}' in the zipfile at: {name}")
                 result.append(name)
-    if len(result) == 0:
+    if not result:
         logger.debug(f"Module '__init__.py' not found in the zipfile @ {zip_path}.")
     return result
 
@@ -163,13 +163,12 @@ def initialize_openai_plugins(
             os.chdir(openai_plugin_client_dir)
 
             if not os.path.exists("client"):
-                client_results = openapi_python_client.create_new_client(
+                if client_results := openapi_python_client.create_new_client(
                     url=manifest_spec["manifest"]["api"]["url"],
                     path=None,
                     meta=_meta_option,
                     config=_config,
-                )
-                if client_results:
+                ):
                     logger.warn(
                         f"Error creating OpenAPI client: {client_results[0].header} \n"
                         f" details: {client_results[0].detail}"
@@ -203,10 +202,10 @@ def instantiate_openai_plugin_clients(
           plugins (dict): per url dictionary of BaseOpenAIPlugin instances.
 
     """
-    plugins = {}
-    for url, manifest_spec_client in manifests_specs_clients.items():
-        plugins[url] = BaseOpenAIPlugin(manifest_spec_client)
-    return plugins
+    return {
+        url: BaseOpenAIPlugin(manifest_spec_client)
+        for url, manifest_spec_client in manifests_specs_clients.items()
+    }
 
 
 def scan_plugins(config: Config, debug: bool = False) -> List[AutoGPTPluginTemplate]:
@@ -243,13 +242,14 @@ def scan_plugins(config: Config, debug: bool = False) -> List[AutoGPTPluginTempl
             )
             continue
 
-        for _, class_obj in inspect.getmembers(plugin):
+        loaded_plugins.extend(
+            class_obj()
+            for _, class_obj in inspect.getmembers(plugin)
             if (
                 hasattr(class_obj, "_abc_impl")
                 and AutoGPTPluginTemplate in class_obj.__bases__
-            ):
-                loaded_plugins.append(class_obj())
-
+            )
+        )
     # Zip-based plugins
     for plugin in plugins_path.glob("*.zip"):
         if moduleList := inspect_zip_for_modules(str(plugin), debug):
@@ -281,20 +281,19 @@ def scan_plugins(config: Config, debug: bool = False) -> List[AutoGPTPluginTempl
                                 f"Loading plugin {plugin_name}. Enabled in plugins_config.yaml."
                             )
                             loaded_plugins.append(a_module())
-                        elif plugin_configured and not plugin_enabled:
+                        elif plugin_configured:
                             logger.debug(
                                 f"Not loading plugin {plugin_name}. Disabled in plugins_config.yaml."
                             )
-                        elif not plugin_configured:
+                        else:
                             logger.warn(
                                 f"Not loading plugin {plugin_name}. Key '{plugin_name}' was not found in plugins_config.yaml. "
                                 f"Zipped plugins should use the class name ({plugin_name}) as the key."
                             )
-                    else:
-                        if a_module.__name__ != "AutoGPTPluginTemplate":
-                            logger.debug(
-                                f"Skipping '{key}' because it doesn't subclass AutoGPTPluginTemplate."
-                            )
+                    elif a_module.__name__ != "AutoGPTPluginTemplate":
+                        logger.debug(
+                            f"Skipping '{key}' because it doesn't subclass AutoGPTPluginTemplate."
+                        )
 
     # OpenAI plugins
     if config.plugins_openai:

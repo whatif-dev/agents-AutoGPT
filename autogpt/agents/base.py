@@ -167,10 +167,9 @@ class BaseAgent(metaclass=ABCMeta):
         # Fill message history, up to a margin of reserved_tokens.
         # Trim remaining historical messages and add them to the running summary.
         history_start_index = len(prompt)
-        trimmed_history = add_history_upto_token_limit(
+        if trimmed_history := add_history_upto_token_limit(
             prompt, self.history, self.send_token_limit - reserve_tokens
-        )
-        if trimmed_history:
+        ):
             new_summary_msg, _ = self.history.trim_messages(list(prompt), self.config)
             prompt.insert(history_start_index, new_summary_msg)
 

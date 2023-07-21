@@ -32,7 +32,7 @@ def test_set_continuous_mode(config: Config):
     continuous_mode = config.continuous_mode
 
     config.continuous_mode = True
-    assert config.continuous_mode == True
+    assert config.continuous_mode
 
     # Reset continuous mode
     config.continuous_mode = continuous_mode
@@ -46,7 +46,7 @@ def test_set_speak_mode(config: Config):
     speak_mode = config.speak_mode
 
     config.speak_mode = True
-    assert config.speak_mode == True
+    assert config.speak_mode
 
     # Reset speak mode
     config.speak_mode = speak_mode
@@ -88,7 +88,7 @@ def test_set_debug_mode(config: Config):
     debug_mode = config.debug_mode
 
     config.debug_mode = True
-    assert config.debug_mode == True
+    assert config.debug_mode
 
     # Reset debug mode
     config.debug_mode = debug_mode
@@ -148,7 +148,7 @@ def test_missing_azure_config(workspace: Workspace):
 
 def test_azure_config(config: Config, workspace: Workspace) -> None:
     config_file = workspace.get_path("azure_config.yaml")
-    yaml_content = f"""
+    yaml_content = """
 azure_api_type: azure
 azure_api_base: https://dummy.openai.azure.com
 azure_api_version: 2023-06-01-preview

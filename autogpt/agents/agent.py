@@ -76,9 +76,7 @@ class Agent(BaseAgent):
             remaining_budget = (
                 api_manager.get_total_budget() - api_manager.get_total_cost()
             )
-            if remaining_budget < 0:
-                remaining_budget = 0
-
+            remaining_budget = max(remaining_budget, 0)
             budget_msg = Message(
                 "system",
                 f"Your remaining API budget is ${remaining_budget:.3f}"
@@ -286,10 +284,10 @@ def execute_command(
 
         # Handle non-native commands (e.g. from plugins)
         for command in agent.ai_config.prompt_generator.commands:
-            if (
-                command_name == command["label"].lower()
-                or command_name == command["name"].lower()
-            ):
+            if command_name in [
+                command["label"].lower(),
+                command["name"].lower(),
+            ]:
                 return command["function"](**arguments)
 
         raise RuntimeError(

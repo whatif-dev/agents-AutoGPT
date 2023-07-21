@@ -139,7 +139,7 @@ class ChatSequence:
     ) -> TChatSequence:
         from autogpt.llm.providers.openai import OPEN_AI_CHAT_MODELS
 
-        if not model_name in OPEN_AI_CHAT_MODELS:
+        if model_name not in OPEN_AI_CHAT_MODELS:
             raise ValueError(f"Unknown chat model '{model_name}'")
 
         return cls(

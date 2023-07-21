@@ -119,19 +119,20 @@ class NextAbility(PromptStrategy):
             **template_kwargs,
         )
         template_kwargs["additional_info"] = to_numbered_list(
-            [memory.summary() for memory in task.context.memories]
-            + [info for info in task.context.supplementary_info],
+            (
+                [memory.summary() for memory in task.context.memories]
+                + list(task.context.supplementary_info)
+            ),
             no_items_response="There is no additional information available at this time.",
-            **template_kwargs,
+            **template_kwargs
         )
         template_kwargs["user_input"] = to_numbered_list(
-            [user_input for user_input in task.context.user_input],
+            list(task.context.user_input),
             no_items_response="There are no additional considerations at this time.",
-            **template_kwargs,
+            **template_kwargs
         )
         template_kwargs["acceptance_criteria"] = to_numbered_list(
-            [acceptance_criteria for acceptance_criteria in task.acceptance_criteria],
-            **template_kwargs,
+            list(task.acceptance_criteria), **template_kwargs
         )
 
         template_kwargs["system_info"] = to_numbered_list(
@@ -173,11 +174,10 @@ class NextAbility(PromptStrategy):
         """
         function_name = response_content["function_call"]["name"]
         function_arguments = json_loads(response_content["function_call"]["arguments"])
-        parsed_response = {
+        return {
             "motivation": function_arguments.pop("motivation"),
             "self_criticism": function_arguments.pop("self_criticism"),
             "reasoning": function_arguments.pop("reasoning"),
             "next_ability": function_name,
             "ability_arguments": function_arguments,
         }
-        return parsed_response

@@ -75,7 +75,7 @@ class PromptGenerator:
             function (callable, optional): A callable function to be called when
                 the command is executed. Defaults to None.
         """
-        command_params = {name: type for name, type in params.items()}
+        command_params = dict(params)
 
         command: PromptGenerator.Command = {
             "label": command_label,

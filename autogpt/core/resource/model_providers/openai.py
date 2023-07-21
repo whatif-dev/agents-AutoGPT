@@ -92,10 +92,7 @@ OPEN_AI_LANGUAGE_MODELS = {
 }
 
 
-OPEN_AI_MODELS = {
-    **OPEN_AI_LANGUAGE_MODELS,
-    **OPEN_AI_EMBEDDING_MODELS,
-}
+OPEN_AI_MODELS = OPEN_AI_LANGUAGE_MODELS | OPEN_AI_EMBEDDING_MODELS
 
 
 class OpenAIConfiguration(SystemConfiguration):
@@ -259,13 +256,11 @@ class OpenAIProvider(
             The kwargs for the embedding API call.
 
         """
-        embedding_kwargs = {
+        return {
             "model": model_name,
             **kwargs,
             **self._credentials.unmasked(),
         }
-
-        return embedding_kwargs
 
     def __repr__(self):
         return "OpenAIProvider()"

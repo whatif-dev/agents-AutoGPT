@@ -160,9 +160,7 @@ class Logger(metaclass=Singleton):
         if message:
             if isinstance(message, list):
                 message = " ".join(message)
-        self.logger.log(
-            level, message, extra={"title": str(title), "color": str(title_color)}
-        )
+        self.logger.log(level, message, extra={"title": title, "color": title_color})
 
     def set_level(self, level: logging._Level) -> None:
         self.logger.setLevel(level)

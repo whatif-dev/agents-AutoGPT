@@ -208,11 +208,9 @@ def _get_cycle_budget(continuous_mode: bool, continuous_limit: int) -> int | Non
     # to a cycle_budget (maximum number of cycles to run without checking in with the
     # user) and a count of cycles_remaining before we check in..
     if continuous_mode:
-        cycle_budget = continuous_limit if continuous_limit else math.inf
+        return continuous_limit if continuous_limit else math.inf
     else:
-        cycle_budget = 1
-
-    return cycle_budget
+        return 1
 
 
 class UserFeedback(str, enum.Enum):
@@ -393,7 +391,7 @@ def update_user(
         logger.typewriter_log(
             "NO ACTION SELECTED: ",
             Fore.RED,
-            f"The Agent failed to select an action.",
+            "The Agent failed to select an action.",
         )
 
 
@@ -430,9 +428,7 @@ def get_user_feedback(
         if config.chat_messages_enabled:
             console_input = clean_input(config, "Waiting for your response...")
         else:
-            console_input = clean_input(
-                config, Fore.MAGENTA + "Input:" + Style.RESET_ALL
-            )
+            console_input = clean_input(config, f"{Fore.MAGENTA}Input:{Style.RESET_ALL}")
 
         # Parse user input
         if console_input.lower().strip() == config.authorise_key:

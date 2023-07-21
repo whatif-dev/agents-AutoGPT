@@ -152,7 +152,7 @@ class Config(SystemSettings, arbitrary_types_allowed=True):
         }
         if self.use_azure:
             azure_credentials = self.get_azure_credentials(model)
-            credentials.update(azure_credentials)
+            credentials |= azure_credentials
         return credentials
 
     def get_azure_credentials(self, model: str) -> dict[str, str]:
@@ -300,7 +300,7 @@ class ConfigBuilder(Configurable[Config]):
 
         if config_dict["use_azure"]:
             azure_config = cls.load_azure_config(config_dict["azure_config_file"])
-            config_dict.update(azure_config)
+            config_dict |= azure_config
 
         elif os.getenv("OPENAI_API_BASE_URL"):
             config_dict["openai_api_base"] = os.getenv("OPENAI_API_BASE_URL")
@@ -354,36 +354,33 @@ class ConfigBuilder(Configurable[Config]):
 
 def check_openai_api_key(config: Config) -> None:
     """Check if the OpenAI API key is set in config.py or as an environment variable."""
-    if not config.openai_api_key:
+    if config.openai_api_key:
+        return
+    print(
+        f"{Fore.RED}Please set your OpenAI API key in .env or as an environment variable.{Fore.RESET}"
+    )
+    print("You can get your key from https://platform.openai.com/account/api-keys")
+    openai_api_key = input(
+        "If you do have the key, please enter your OpenAI API key now:\n"
+    )
+    openai_api_key = openai_api_key.strip()
+    key_pattern = r"^sk-\w{48}"
+    if re.search(key_pattern, openai_api_key):
+        os.environ["OPENAI_API_KEY"] = openai_api_key
+        config.openai_api_key = openai_api_key
         print(
-            Fore.RED
-            + "Please set your OpenAI API key in .env or as an environment variable."
+            Fore.GREEN
+            + "OpenAI API key successfully set!\n"
+            + Fore.YELLOW
+            + "NOTE: The API key you've set is only temporary.\n"
+            + "For longer sessions, please set it in .env file"
             + Fore.RESET
         )
-        print("You can get your key from https://platform.openai.com/account/api-keys")
-        openai_api_key = input(
-            "If you do have the key, please enter your OpenAI API key now:\n"
-        )
-        key_pattern = r"^sk-\w{48}"
-        openai_api_key = openai_api_key.strip()
-        if re.search(key_pattern, openai_api_key):
-            os.environ["OPENAI_API_KEY"] = openai_api_key
-            config.openai_api_key = openai_api_key
-            print(
-                Fore.GREEN
-                + "OpenAI API key successfully set!\n"
-                + Fore.YELLOW
-                + "NOTE: The API key you've set is only temporary.\n"
-                + "For longer sessions, please set it in .env file"
-                + Fore.RESET
-            )
-        else:
-            print("Invalid OpenAI API key!")
-            exit(1)
+    else:
+        print("Invalid OpenAI API key!")
+        exit(1)
 
 
 def _safe_split(s: Union[str, None], sep: str = ",") -> list[str]:
     """Split a string by a separator. Return an empty list if the string is None."""
-    if s is None:
-        return []
-    return s.split(sep)
+    return [] if s is None else s.split(sep)
